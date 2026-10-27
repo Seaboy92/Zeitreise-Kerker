@@ -14,6 +14,7 @@ public class CollectibleManager : MonoBehaviour
     private readonly HashSet<CollectibleItem> collectedItems = new();
     private bool keyCollected;
     public bool KeyCollected => keyCollected;
+    public int CollectedCount => collectedItems.Count;
 
     private void Awake()
     {

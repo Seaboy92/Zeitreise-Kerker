@@ -38,6 +38,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Ember
+    second: {fileID: 2100000, guid: c14021abfaa46d1498a6155145915532, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Metal_Polished
     second: {fileID: 2100000, guid: 53ce828af18d0eb46b8e8ede9ab92220, type: 2}
   - first:
@@ -51,11 +56,11 @@ ModelImporter:
       name: Wood_Basic
     second: {fileID: 2100000, guid: 2cb987137b739894682ccea9106cd69b, type: 2}
   materials:
-    materialImportMode: 1
+    materialImportMode: 2
     materialName: 1
     materialSearch: 1
-    materialLocation: 0
-    searchTexturesGlobally: 1
+    materialLocation: 1
+    searchTexturesGlobally: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0

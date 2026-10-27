@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d5eaef7218770004e8525c16081a7fc4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - coffeeMachineObject: {instanceID: 0}
+  - coffeeCupObject: {instanceID: 0}
+  - hintText: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

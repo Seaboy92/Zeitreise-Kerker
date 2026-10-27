@@ -112,3 +112,18 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# additional IDE-Settings
+.idea/
+.vscode/
+
+# OS-Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temp Editor- and Backup-Files
+*.bak
+*.orig
+*.swp
+*~

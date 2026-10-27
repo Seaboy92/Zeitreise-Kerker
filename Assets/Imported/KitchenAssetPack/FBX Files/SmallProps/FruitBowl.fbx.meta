@@ -1,14 +1,32 @@
 fileFormatVersion: 2
 guid: 0b345b6be4d07284e85c0605b31f8125
+AssetOrigin:
+  serializedVersion: 1
+  productId: 371114
+  packageName: Stylized Low Poly kitchen Pack
+  packageVersion: 1.0
+  assetPath: Assets/KitchenAssetPack/FBX Files/SmallProps/FruitBowl.fbx
+  uploadId: 892514
 ModelImporter:
-  serializedVersion: 22200
+  serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.004
+    second: {fileID: -605800973814533246, guid: 315e3a6a0f3a5cd40a796b1e64803e7c, type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: White cracked ceramic
+    second: {fileID: 2100000, guid: 73150097a0d58774d808970b3e340f37, type: 2}
   materials:
     materialImportMode: 2
-    materialName: 0
-    materialSearch: 1
+    materialName: 2
+    materialSearch: 2
     materialLocation: 1
+    searchTexturesGlobally: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -38,6 +56,8 @@ ModelImporter:
     addColliders: 0
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
+    preBakeConvexCollisionMesh: 0
+    preBakeTriangleCollisionMesh: 0
     importPhysicalCameras: 1
     importVisibility: 1
     importBlendShapes: 1
@@ -56,6 +76,11 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -75,6 +100,7 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 1
   referencedClips: []
   importAnimation: 1
   humanDescription:
@@ -105,10 +131,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 371114
-  packageName: Stylized Low Poly kitchen Pack
-  packageVersion: 1.0
-  assetPath: Assets/KitchenAssetPack/FBX Files/SmallProps/FruitBowl.fbx
-  uploadId: 892514

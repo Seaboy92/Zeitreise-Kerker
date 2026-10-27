@@ -11,6 +11,8 @@ public class DoorController : MonoBehaviour
     [SerializeField] private Transform doorPivot;
     [SerializeField] private float openAngle = 90f;
     [SerializeField] private float animationDuration = 1f;
+    [SerializeField] private bool requiresNineItems;
+    [SerializeField] private int requiredItems = 9;
 
     [Header("Rückmeldung")]
     [SerializeField] private TMP_Text messageText;
@@ -66,14 +68,61 @@ public class DoorController : MonoBehaviour
             return;
         }
 
-        if (CollectibleManager.Instance == null ||
-            !CollectibleManager.Instance.KeyCollected)
+        if (CollectibleManager.Instance == null)
         {
             StartCoroutine(ShowLockedFeedback());
             return;
         }
 
+        // Bisherige Schlüsselprüfung bleibt erhalten.
+        if (!CollectibleManager.Instance.KeyCollected)
+        {
+            StartCoroutine(ShowLockedFeedback());
+            return;
+        }
+
+        // Zusätzliche Prüfung nur für die letzte Tür.
+        if (requiresNineItems &&
+            CollectibleManager.Instance.CollectedCount < requiredItems)
+        {
+            StartCoroutine(ShowItemsRequiredFeedback());
+            return;
+        }
+
         StartCoroutine(AnimateDoor(!isOpen));
+    }
+
+    private IEnumerator ShowItemsRequiredFeedback()
+    {
+        if (isAnimating)
+        {
+            yield break;
+        }
+
+        isAnimating = true;
+
+        if (messageText != null)
+        {
+            int collected = CollectibleManager.Instance.CollectedCount;
+
+            messageText.text =
+                $"Du benötigst mindestens {requiredItems} Gegenstände! " +
+                $"({collected}/{requiredItems})";
+        }
+
+        if (lockedSound != null)
+        {
+            lockedSound.Play();
+        }
+
+        yield return new WaitForSeconds(2f);
+
+        if (messageText != null)
+        {
+            messageText.text = "";
+        }
+
+        isAnimating = false;
     }
 
     private IEnumerator ShowLockedFeedback()
@@ -87,7 +136,7 @@ public class DoorController : MonoBehaviour
 
         if (messageText != null)
         {
-            messageText.text = "Verschlossen";
+            messageText.text = "Die Tür ist verschlossen";
         }
 
         if (lockedSound != null)
