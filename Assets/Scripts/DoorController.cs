@@ -1,18 +1,17 @@
-
 using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class DoorController : MonoBehaviour
-{
+public class DoorController : MonoBehaviour {
     [Header("Tür")]
     [SerializeField] private Transform doorPivot;
     [SerializeField] private float openAngle = 90f;
     [SerializeField] private float animationDuration = 1f;
     [SerializeField] private bool requiresNineItems;
     [SerializeField] private int requiredItems = 9;
+    [SerializeField] private bool requiresCoffeeCup;
 
     [Header("Rückmeldung")]
     [SerializeField] private TMP_Text messageText;
@@ -25,12 +24,10 @@ public class DoorController : MonoBehaviour
     private bool isOpen;
     private bool isAnimating;
 
-    private void Awake()
-    {
+    private void Awake() {
         interactable = GetComponent<XRSimpleInteractable>();
 
-        if (doorPivot == null)
-        {
+        if (doorPivot == null) {
             Debug.LogError("DoorPivot wurde nicht zugewiesen!", this);
             return;
         }
@@ -39,52 +36,44 @@ public class DoorController : MonoBehaviour
         openRotation = closedRotation
             * Quaternion.Euler(0f, openAngle, 0f);
 
-        if (messageText != null)
-        {
+        if (messageText != null) {
             messageText.text = "";
         }
     }
 
-    private void OnEnable()
-    {
-        if (interactable != null)
-        {
+    private void OnEnable() {
+        if (interactable != null) {
             interactable.selectEntered.AddListener(OnInteract);
         }
     }
 
-    private void OnDisable()
-    {
-        if (interactable != null)
-        {
+    private void OnDisable() {
+        if (interactable != null) {
             interactable.selectEntered.RemoveListener(OnInteract);
         }
     }
 
-    private void OnInteract(SelectEnterEventArgs args)
-    {
-        if (isAnimating)
-        {
+    private void OnInteract(SelectEnterEventArgs args) {
+        if (isAnimating) {
             return;
         }
 
-        if (CollectibleManager.Instance == null)
-        {
+        if (CollectibleManager.Instance == null) {
             StartCoroutine(ShowLockedFeedback());
             return;
         }
+        if (requiresCoffeeCup && !CollectibleManager.Instance.CoffeeCupCollected) {
+            StartCoroutine(ShowCoffeeCupRequiredFeedback());
+            return;
+        }
 
-        // Bisherige Schlüsselprüfung bleibt erhalten.
-        if (!CollectibleManager.Instance.KeyCollected)
-        {
+        if (!CollectibleManager.Instance.KeyCollected) {
             StartCoroutine(ShowLockedFeedback());
             return;
         }
 
         // Zusätzliche Prüfung nur für die letzte Tür.
-        if (requiresNineItems &&
-            CollectibleManager.Instance.CollectedCount < requiredItems)
-        {
+        if (requiresNineItems && CollectibleManager.Instance.CollectedCount < requiredItems) {
             StartCoroutine(ShowItemsRequiredFeedback());
             return;
         }
@@ -92,17 +81,14 @@ public class DoorController : MonoBehaviour
         StartCoroutine(AnimateDoor(!isOpen));
     }
 
-    private IEnumerator ShowItemsRequiredFeedback()
-    {
-        if (isAnimating)
-        {
+    private IEnumerator ShowItemsRequiredFeedback() {
+        if (isAnimating) {
             yield break;
         }
 
         isAnimating = true;
 
-        if (messageText != null)
-        {
+        if (messageText != null) {
             int collected = CollectibleManager.Instance.CollectedCount;
 
             messageText.text =
@@ -110,37 +96,31 @@ public class DoorController : MonoBehaviour
                 $"({collected}/{requiredItems})";
         }
 
-        if (lockedSound != null)
-        {
+        if (lockedSound != null) {
             lockedSound.Play();
         }
 
         yield return new WaitForSeconds(2f);
 
-        if (messageText != null)
-        {
+        if (messageText != null) {
             messageText.text = "";
         }
 
         isAnimating = false;
     }
 
-    private IEnumerator ShowLockedFeedback()
-    {
-        if (isAnimating)
-        {
+    private IEnumerator ShowLockedFeedback() {
+        if (isAnimating) {
             yield break;
         }
 
         isAnimating = true;
 
-        if (messageText != null)
-        {
+        if (messageText != null) {
             messageText.text = "Die Tür ist verschlossen";
         }
 
-        if (lockedSound != null)
-        {
+        if (lockedSound != null) {
             lockedSound.Play();
         }
 
@@ -148,8 +128,7 @@ public class DoorController : MonoBehaviour
         float elapsed = 0f;
         float duration = 0.35f;
 
-        while (elapsed < duration)
-        {
+        while (elapsed < duration) {
             elapsed += Time.deltaTime;
 
             float angle = Mathf.Sin(elapsed * 45f) * 4f;
@@ -163,16 +142,14 @@ public class DoorController : MonoBehaviour
 
         yield return new WaitForSeconds(1.5f);
 
-        if (messageText != null)
-        {
+        if (messageText != null) {
             messageText.text = "";
         }
 
         isAnimating = false;
     }
 
-    private IEnumerator AnimateDoor(bool open)
-    {
+    private IEnumerator AnimateDoor(bool open) {
         isAnimating = true;
 
         Quaternion startRotation = doorPivot.localRotation;
@@ -182,8 +159,7 @@ public class DoorController : MonoBehaviour
 
         float elapsed = 0f;
 
-        while (elapsed < animationDuration)
-        {
+        while (elapsed < animationDuration) {
             elapsed += Time.deltaTime;
 
             float progress = Mathf.Clamp01(
@@ -201,6 +177,31 @@ public class DoorController : MonoBehaviour
 
         doorPivot.localRotation = targetRotation;
         isOpen = open;
+        isAnimating = false;
+    }
+
+    private IEnumerator ShowCoffeeCupRequiredFeedback() {
+        if (isAnimating) {
+            yield break;
+        }
+
+        isAnimating = true;
+
+        if (messageText != null) {
+            messageText.text =
+                "Du musst noch nicht zur Toilette!";
+        }
+
+        if (lockedSound != null) {
+            lockedSound.Play();
+        }
+
+        yield return new WaitForSeconds(2f);
+
+        if (messageText != null) {
+            messageText.text = "";
+        }
+
         isAnimating = false;
     }
 }

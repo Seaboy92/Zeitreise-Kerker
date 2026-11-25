@@ -10,11 +10,22 @@ public class CollectibleItem : MonoBehaviour
     [Header("References")]
     [SerializeField] private XRGrabInteractable grabInteractable;
     [SerializeField] private GameObject affordanceCallout;
+    [SerializeField] private AudioSource pickupAudioSource;
+    private AudioClip pickupClip;
+
+    [Header("Praise Text")]
+    [SerializeField] private PraiseTextController praiseTextController;
+    [SerializeField, TextArea]
+    private string praiseMessage =
+        "Gut gemacht!\nDu hast einen\nGegenstand\ngefunden.";
 
     [Header("Collection")]
     [SerializeField] private bool isKey;
     [SerializeField] private bool startsLocked;
     [SerializeField] private bool isCoffeeBag;
+    [SerializeField] private bool isCoffeeCup;
+
+    public bool IsCoffeeCup => isCoffeeCup;
 
     public bool IsKey => isKey;
 
@@ -22,138 +33,115 @@ public class CollectibleItem : MonoBehaviour
     private bool isCollected;
     private bool isLocked;
 
-    private void Awake()
-    {
-        if (grabInteractable == null)
-        {
+    private void Awake() {
+        if (grabInteractable == null) {
             grabInteractable = GetComponent<XRGrabInteractable>();
         }
 
         isLocked = startsLocked;
 
-        if (grabInteractable != null)
-        {
+        if (grabInteractable != null) {
             grabInteractable.enabled = !isLocked;
         }
 
-        if (isLocked && affordanceCallout != null)
-        {
+        if (isLocked && affordanceCallout != null) {
             affordanceCallout.SetActive(false);
         }
     }
 
-    private void OnEnable()
-    {
-        if (grabInteractable == null)
-        {
+    private void OnEnable() {
+        if (grabInteractable == null) {
             grabInteractable = GetComponent<XRGrabInteractable>();
         }
 
-        if (grabInteractable != null)
-        {
+        if (grabInteractable != null) {
             grabInteractable.selectEntered.AddListener(OnGrab);
             grabInteractable.selectExited.AddListener(OnRelease);
         }
     }
 
-    private void OnDisable()
-    {
-        if (grabInteractable != null)
-        {
+    private void OnDisable() {
+        if (grabInteractable != null) {
             grabInteractable.selectEntered.RemoveListener(OnGrab);
             grabInteractable.selectExited.RemoveListener(OnRelease);
         }
     }
 
-    private void Update()
-    {
+    private void Update() {
         var rightHand =
             InputSystem.GetDevice<UnityEngine.InputSystem.XR.XRController>();
 
         var trigger = rightHand?.TryGetChildControl<AxisControl>("trigger");
 
-        if (isHeld &&
-            !isCollected &&
-            !isLocked &&
-            trigger != null &&
-            trigger.ReadValue() > 0.8f)
-        {
+        if (isHeld && !isCollected && !isLocked && trigger != null && trigger.ReadValue() > 0.8f) {
             Collect();
         }
     }
 
-    private void OnGrab(SelectEnterEventArgs args)
-    {
-
-        if (isLocked)
-        {
+    private void OnGrab(SelectEnterEventArgs args) {
+        if (isLocked) {
             ShowLockedHint();
             return;
         }
 
         isHeld = true;
 
-        if (affordanceCallout != null)
-        {
+        if (affordanceCallout != null) {
             affordanceCallout.SetActive(false);
         }
     }
 
-    private void OnRelease(SelectExitEventArgs args)
-    {
+    private void OnRelease(SelectExitEventArgs args) {
         isHeld = false;
 
-        if (!isCollected && !isLocked &&
-            affordanceCallout != null)
-        {
+        if (!isCollected && !isLocked && affordanceCallout != null) {
             affordanceCallout.SetActive(true);
         }
     }
 
-    public void SetLocked(bool locked)
-    {
+    public void SetLocked(bool locked) {
         isLocked = locked;
 
-        if (grabInteractable != null)
-        {
+        if (grabInteractable != null) {
             grabInteractable.enabled = !locked;
         }
 
-        if (affordanceCallout != null)
-        {
+        if (affordanceCallout != null) {
             affordanceCallout.SetActive(!locked && !isHeld);
         }
     }
 
-    public void Collect()
-    {
-        if (isCollected || isLocked || !isHeld)
-        {
+    public void Collect() {
+        if (isCollected || isLocked || !isHeld) {
             return;
         }
 
-        if (CollectibleManager.Instance == null)
-        {
+        if (CollectibleManager.Instance == null) {
             Debug.LogError(
                 "Kein CollectibleManager in der Szene vorhanden!");
             return;
+        }
+
+        if (PickupAudioPlayer.Instance != null) {
+            PickupAudioPlayer.Instance.PlayPickupSound();
+        }
+
+        if (praiseTextController != null) {
+            praiseTextController.ShowPraise(praiseMessage);
         }
 
         isCollected = true;
 
         CollectibleManager.Instance.CollectItem(this);
 
-        if (isCoffeeBag && CoffeeQuestManager.Instance != null)
-        {
+        if (isCoffeeBag && CoffeeQuestManager.Instance != null) {
             CoffeeQuestManager.Instance.OnCoffeeBagCollected();
         }
 
         Destroy(gameObject);
     }
-    public void ShowLockedHint()
-    {
-        if (isLocked && CoffeeQuestManager.Instance != null)
-        {
+    public void ShowLockedHint() {
+        if (isLocked && CoffeeQuestManager.Instance != null) {
             CoffeeQuestManager.Instance.OnLockedCupAttempt();
         }
     }

@@ -6,8 +6,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using TMPro;
 
-public class CoffeeQuestManager : MonoBehaviour
-{
+public class CoffeeQuestManager : MonoBehaviour {
     public static CoffeeQuestManager Instance { get; private set; }
 
     [Header("References")]
@@ -24,47 +23,39 @@ public class CoffeeQuestManager : MonoBehaviour
     private CollectibleItem coffeeCup;
     private XRSimpleInteractable coffeeCupInteraction;
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
+    private void Awake() {
+        if (Instance != null && Instance != this) {
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
 
-        if (coffeeMachineObject != null)
-        {
+        if (coffeeMachineObject != null) {
             coffeeMachine =
                 coffeeMachineObject.GetComponent<XRSimpleInteractable>();
 
-            if (coffeeMachine == null)
-            {
+            if (coffeeMachine == null) {
                 Debug.LogError(
                     "XR Simple Interactable wurde an der Kaffeemaschine nicht gefunden!"
                 );
             }
         }
 
-        if (coffeeCupObject != null)
-        {
+        if (coffeeCupObject != null) {
             coffeeCup = coffeeCupObject.GetComponent<CollectibleItem>();
 
-            if (coffeeCup == null)
-            {
+            if (coffeeCup == null) {
                 Debug.LogError(
                     "CollectibleItem wurde an der Kaffeetasse nicht gefunden!"
                 );
             }
-            else
-            {
+            else {
                 coffeeCup.SetLocked(true);
             }
         }
 
-        if (coffeeCupInteractionObject != null)
-        {
+        if (coffeeCupInteractionObject != null) {
             coffeeCupInteraction =
                 coffeeCupInteractionObject
                     .GetComponent<XRSimpleInteractable>();
@@ -73,15 +64,12 @@ public class CoffeeQuestManager : MonoBehaviour
         ShowHint(false, "");
     }
 
-    private void OnEnable()
-    {
-        if (coffeeMachine != null)
-        {
+    private void OnEnable() {
+        if (coffeeMachine != null) {
             coffeeMachine.selectEntered.AddListener(OnMachineSelected);
             coffeeMachine.selectExited.AddListener(OnMachineDeselected);
         }
-        if (coffeeCupInteraction != null)
-        {
+        if (coffeeCupInteraction != null) {
             coffeeCupInteraction.selectEntered
                 .AddListener(OnCupSelected);
 
@@ -90,15 +78,12 @@ public class CoffeeQuestManager : MonoBehaviour
         }
     }
 
-    private void OnDisable()
-    {
-        if (coffeeMachine != null)
-        {
+    private void OnDisable() {
+        if (coffeeMachine != null) {
             coffeeMachine.selectEntered.RemoveListener(OnMachineSelected);
             coffeeMachine.selectExited.RemoveListener(OnMachineDeselected);
         }
-        if (coffeeCupInteraction != null)
-        {
+        if (coffeeCupInteraction != null) {
             coffeeCupInteraction.selectEntered
                 .RemoveListener(OnCupSelected);
 
@@ -107,106 +92,86 @@ public class CoffeeQuestManager : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        if (Instance == this)
-        {
+    private void OnDestroy() {
+        if (Instance == this) {
             Instance = null;
         }
     }
 
-    private void Update()
-    {
+    private void Update() {
         bool triggerPressed = IsRightTriggerPressed();
         bool triggerJustPressed =
             triggerPressed && !previousTriggerPressed;
 
         previousTriggerPressed = triggerPressed;
 
-        if (!machineSelected)
-        {
+        if (!machineSelected) {
             return;
         }
 
-        if (coffeeMade)
-        {
+        if (coffeeMade) {
             ShowHint(true, "Kaffee ist fertig! Nimm die Tasse.");
             return;
         }
 
-        if (!coffeeBagCollected)
-        {
+        if (!coffeeBagCollected) {
             ShowHint(true, "Hole zuerst den Kaffee aus dem Lager.");
             return;
         }
 
         ShowHint(true, "Trigger drücken, um Kaffee zuzubereiten.");
 
-        if (triggerJustPressed)
-        {
+        if (triggerJustPressed) {
             MakeCoffee();
         }
     }
 
-    private void OnMachineSelected(SelectEnterEventArgs args)
-    {
+    private void OnMachineSelected(SelectEnterEventArgs args) {
         machineSelected = true;
 
-        if (coffeeMade)
-        {
+        if (coffeeMade) {
             ShowHint(true, "Kaffee ist fertig! Nimm die Tasse.");
         }
-        else if (!coffeeBagCollected)
-        {
+        else if (!coffeeBagCollected) {
             ShowHint(true, "Hole zuerst den Kaffee aus dem Lager.");
         }
-        else
-        {
+        else {
             ShowHint(true, "Trigger drücken, um Kaffee zuzubereiten.");
         }
     }
 
-    private void OnMachineDeselected(SelectExitEventArgs args)
-    {
+    private void OnMachineDeselected(SelectExitEventArgs args) {
         machineSelected = false;
         ShowHint(false, "");
     }
 
-    public void OnCoffeeBagCollected()
-    {
+    public void OnCoffeeBagCollected() {
         coffeeBagCollected = true;
     }
-    public void OnLockedCupAttempt()
-    {
-        if (!coffeeMade)
-        {
+    public void OnLockedCupAttempt() {
+        if (!coffeeMade) {
             ShowHint(true, "Du musst zuerst Kaffee zubereiten!");
         }
     }
-    private void MakeCoffee()
-    {
-        if (coffeeMade || !coffeeBagCollected)
-        {
+    private void MakeCoffee() {
+        if (coffeeMade || !coffeeBagCollected) {
             return;
         }
 
         coffeeMade = true;
 
-        if (coffeeCupInteraction != null)
-        {
+        if (coffeeCupInteraction != null) {
             coffeeCupInteraction.enabled = false;
         }
 
-        if (coffeeCup != null)
-        {
+        if (coffeeCup != null) {
             coffeeCup.SetLocked(false);
         }
 
         ShowHint(true, "Kaffee ist fertig! Nimm die Tasse.");
     }
 
-    private bool IsRightTriggerPressed()
-    {
+    private bool IsRightTriggerPressed() {
         var rightHand =
             InputSystem.GetDevice<UnityEngine.InputSystem.XR.XRController>();
 
@@ -216,34 +181,26 @@ public class CoffeeQuestManager : MonoBehaviour
         return trigger != null && trigger.ReadValue() > 0.8f;
     }
 
-    private void ShowHint(bool visible, string message)
-    {
-        if (hintText == null)
-        {
+    private void ShowHint(bool visible, string message) {
+        if (hintText == null) {
             return;
         }
 
-        if (hintText.gameObject.activeSelf != visible)
-        {
+        if (hintText.gameObject.activeSelf != visible) {
             hintText.gameObject.SetActive(visible);
         }
 
-        if (visible)
-        {
+        if (visible) {
             hintText.text = message;
         }
     }
-    private void OnCupSelected(SelectEnterEventArgs args)
-    {
-        if (!coffeeMade)
-        {
+    private void OnCupSelected(SelectEnterEventArgs args) {
+        if (!coffeeMade) {
             OnLockedCupAttempt();
         }
     }
-    private void OnCupDeselected(SelectExitEventArgs args)
-    {
-        if (!coffeeMade)
-        {
+    private void OnCupDeselected(SelectExitEventArgs args) {
+        if (!coffeeMade) {
             ShowHint(false, "");
         }
     }

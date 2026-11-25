@@ -14,22 +14,38 @@ public class CollectibleManager : MonoBehaviour
     private readonly HashSet<CollectibleItem> collectedItems = new();
     private bool keyCollected;
     public bool KeyCollected => keyCollected;
+    private bool coffeeCupCollected;
+    public bool CoffeeCupCollected => coffeeCupCollected;
     public int CollectedCount => collectedItems.Count;
 
-    private void Awake()
-    {
+    [Header("Spielabschluss")]
+    [SerializeField] private GameObject endGameMenu;
+    [SerializeField] private PraiseTextController praiseTextController;
+
+    private bool gameCompleted;
+
+    private void Awake() {
         if (Instance != null && Instance != this)
         {
             Debug.LogError("Es gibt mehrere CollectibleManager!");
             return;
         }
 
+        if (endGameMenu != null)
+        {
+            endGameMenu.SetActive(false);
+        }
+
+        if (praiseTextController != null)
+        {
+            praiseTextController.OnPraiseHidden += HandlePraiseHidden;
+        }
+
         Instance = this;
         UpdateProgressDisplay();
     }
 
-    public void CollectItem(CollectibleItem item)
-    {
+    public void CollectItem(CollectibleItem item) {
         // Verhindert, dass derselbe Gegenstand doppelt zählt
         if (!collectedItems.Add(item))
         {
@@ -42,6 +58,11 @@ public class CollectibleManager : MonoBehaviour
             Debug.Log("Schlüssel eingesammelt!");
         }
 
+        if (item.IsCoffeeCup)
+        {
+            coffeeCupCollected = true;
+            Debug.Log("Kaffeetasse eingesammelt!");
+        }
         UpdateProgressDisplay();
 
         Debug.Log(
@@ -50,12 +71,24 @@ public class CollectibleManager : MonoBehaviour
 
     }
 
-    private void UpdateProgressDisplay()
-    {
+    private void UpdateProgressDisplay() {
         if (progressText != null)
         {
             progressText.text =
                 $"Gesammelt: {collectedItems.Count}/{totalItems}";
+        }
+    }
+
+    private void HandlePraiseHidden()
+    {
+        if (collectedItems.Count >= totalItems && !gameCompleted)
+        {
+            gameCompleted = true;
+
+            if (endGameMenu != null)
+            {
+                endGameMenu.SetActive(true);
+            }
         }
     }
 }
